@@ -76,18 +76,27 @@ In this case, you only need Java 21 installed.
 Run it directly with:
 java -jar pokedex-1.0.0.jar
 
+Option 3 – Docker
+
+docker build -t fun-pokedex:1.0 .       -- from Dockefile folder 
+docker run -p 8080:8080 fun-pokedex
+
+
 --------  LOCAL TESTING
 
 If you want to change the local port or other environment settings, edit the file:
 src/main/resources/application.yml
 
 Then test the APIs locally (default port: 8080):
+
+from terminal 
+curl http://localhost:8080/pokemon/mewtwo
+curl http://localhost:8080/pokemon/translated/mewtwo
+
+using httpie
 http :8080/pokemon/mewtwo
 http :8080/pokemon/translated/mewtwo
 
-Docker
-docker build -t fun-pokedex .
-docker run -p 8080:8080 fun-pokedex
 
 -------- DIFFERENT PRODUCTION DESIGN DECISIONS
 - Improved configuration management
