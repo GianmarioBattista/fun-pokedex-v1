@@ -2,6 +2,7 @@ package com.pokedex.controller;
 
 import com.pokedex.assembler.PokemonAssembler;
 import com.pokedex.command.PokemonCommand;
+import com.pokedex.command.PokemonTranslationCommand;
 import com.pokedex.model.PokemonResponseModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
@@ -37,6 +38,19 @@ public class PokemonController {
         }
 
         PokemonCommand command = beanFactory.getBean(PokemonCommand.class, name.trim());
+        Map<String, Object> commandResponse = command.execute();
+        return ResponseEntity.ok().body(PokemonAssembler.toResource(commandResponse));
+
+    }
+
+    @GetMapping("/translated/{name}")
+    public ResponseEntity<PokemonResponseModel> getTranslated(@PathVariable String name) {
+
+        if (!VALID_NAME.matcher(name).matches()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Pokémon name");
+        }
+
+        PokemonTranslationCommand command = beanFactory.getBean(PokemonTranslationCommand.class, name.trim());
         Map<String, Object> commandResponse = command.execute();
         return ResponseEntity.ok().body(PokemonAssembler.toResource(commandResponse));
 
