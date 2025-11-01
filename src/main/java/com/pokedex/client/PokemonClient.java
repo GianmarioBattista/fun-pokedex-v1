@@ -1,15 +1,14 @@
 package com.pokedex.client;
 
-import lombok.RequiredArgsConstructor;
+import com.pokedex.exception.PokemonNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -42,8 +41,12 @@ public class PokemonClient {
 
             return responseEntity.getBody();
 
+        } catch (HttpClientErrorException.NotFound e) {
+            log.warn("[PokemonClient] Pokemon not found: {}", name);
+            throw new PokemonNotFoundException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error calling PokeAPI", e);
+            log.error("[PokemonClient] Unexpected error: {}", e.getMessage());
+            throw new RuntimeException("Unexpected error calling PokeAPI", e);
         }
     }
 }

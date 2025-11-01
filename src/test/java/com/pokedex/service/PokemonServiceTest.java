@@ -1,6 +1,7 @@
 package com.pokedex.service;
 
 import com.pokedex.client.PokemonClient;
+import com.pokedex.exception.PokemonNotFoundException;
 import com.pokedex.utils.PokemonTestUtils;
 import com.pokedex.utils.VariableUtils;
 import org.junit.jupiter.api.Test;
@@ -40,22 +41,23 @@ class PokemonServiceTest {
     }
 
     @Test
-    void getPokemonInfo_shouldThrowException_whenResponseBodyIsNull() {
+    void getPokemonInfo_shouldThrowNotFound_whenPokemonDoesNotExist() {
+        // Simula l'errore 404
+        when(pokemonClient.getPokemonSpecies(anyString()))
+                .thenThrow(new PokemonNotFoundException("Pokemon not found: mewtwo"));
 
-        when(pokemonClient.getPokemonSpecies(anyString())).thenReturn(null);
-
-        RuntimeException thrown = assertThrows(
-                RuntimeException.class,
+        PokemonNotFoundException thrown = assertThrows(
+                PokemonNotFoundException.class,
                 () -> pokemonService.getPokemonInfo("mewtwo")
         );
 
-        assertEquals("[PokemonService] Error while processing Pokemon API response", thrown.getMessage());
+        assertEquals("Pokemon not found: mewtwo", thrown.getMessage());
     }
 
     @Test
     void getPokemonInfo_shouldThrowException_whenRestTemplateThrowsError() {
 
-        when(pokemonClient.getPokemonSpecies(anyString())).thenThrow(new RuntimeException("Connection failed"));
+        when(pokemonClient.getPokemonSpecies(anyString())).thenThrow(new RuntimeException("Unexpected error calling PokeAPI"));
 
 
         RuntimeException thrown = assertThrows(
@@ -63,6 +65,6 @@ class PokemonServiceTest {
                 () -> pokemonService.getPokemonInfo("mewtwo")
         );
 
-        assertTrue(thrown.getMessage().contains("[PokemonService] Error while processing Pokemon API response"));
+        assertTrue(thrown.getMessage().contains("Unexpected error calling PokeAPI"));
     }
 }
